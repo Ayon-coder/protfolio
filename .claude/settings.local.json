@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:luckyi.framer.ai)",
+      "WebFetch(domain:unsplash.com)",
+      "WebSearch"
+    ]
+  }
+}

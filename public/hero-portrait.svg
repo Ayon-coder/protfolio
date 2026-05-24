@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3.5" />
+    </filter>
+    <filter id="softer" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="22" />
+    </filter>
+    <filter id="bokeh" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="40" />
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 0.45 0" />
+    </filter>
+
+    <!-- warm orange atmospheric bg -->
+    <radialGradient id="atmosphere" cx="62%" cy="32%" r="85%">
+      <stop offset="0%"  stop-color="#5a2410" stop-opacity="1" />
+      <stop offset="35%" stop-color="#2e1408" stop-opacity="1" />
+      <stop offset="75%" stop-color="#140805" stop-opacity="1" />
+      <stop offset="100%" stop-color="#080608" stop-opacity="1" />
+    </radialGradient>
+
+    <!-- strong orange key light from upper-right -->
+    <radialGradient id="keylight" cx="72%" cy="18%" r="48%">
+      <stop offset="0%"  stop-color="#f5953a" stop-opacity="0.9" />
+      <stop offset="35%" stop-color="#c66428" stop-opacity="0.5" />
+      <stop offset="70%" stop-color="#6a3010" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="transparent" />
+    </radialGradient>
+
+    <!-- silhouette with orange rim on the lit side -->
+    <linearGradient id="silhouette" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#06050a" stop-opacity="1" />
+      <stop offset="55%"  stop-color="#0a0808" stop-opacity="1" />
+      <stop offset="85%"  stop-color="#1e0e08" stop-opacity="1" />
+      <stop offset="100%" stop-color="#5a2410" stop-opacity="1" />
+    </linearGradient>
+
+    <!-- vertical face shadow gradient for jaw definition -->
+    <linearGradient id="faceShade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#06050a" stop-opacity="0" />
+      <stop offset="60%" stop-color="#06050a" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#06050a" stop-opacity="0.8" />
+    </linearGradient>
+  </defs>
+
+  <!-- atmospheric warm background -->
+  <rect width="600" height="800" fill="url(#atmosphere)" />
+
+  <!-- big orange bokeh blooms (background depth) -->
+  <circle cx="510" cy="100" r="120" fill="#e8763a" opacity="0.5"  filter="url(#bokeh)" />
+  <circle cx="120" cy="90"  r="80"  fill="#a8501e" opacity="0.4"  filter="url(#bokeh)" />
+  <circle cx="90"  cy="680" r="100" fill="#7a3010" opacity="0.4"  filter="url(#bokeh)" />
+  <circle cx="540" cy="640" r="90"  fill="#a8501e" opacity="0.35" filter="url(#bokeh)" />
+
+  <!-- strong key light -->
+  <ellipse cx="430" cy="160" rx="360" ry="380" fill="url(#keylight)" filter="url(#softer)" />
+
+  <!-- character silhouette -->
+  <g filter="url(#soft)">
+    <!-- shoulders & body -->
+    <path d="M 0 800 L 0 600 Q 30 500, 220 460 Q 300 450, 380 460 Q 570 500, 600 600 L 600 800 Z"
+          fill="url(#silhouette)" />
+
+    <!-- neck shadow -->
+    <path d="M 248 488 Q 248 420, 300 420 Q 352 420, 352 488 L 352 510 Q 300 528, 248 510 Z"
+          fill="#040406" />
+
+    <!-- head shape (rounder, more recognizable) -->
+    <path d="M 158 290
+             Q 158 122, 300 122
+             Q 442 122, 442 290
+             Q 442 392, 412 440
+             Q 380 478, 300 482
+             Q 220 478, 188 440
+             Q 158 392, 158 290 Z"
+          fill="url(#silhouette)" />
+
+    <!-- face shading (lower half darker) -->
+    <path d="M 168 290
+             Q 168 392, 196 438
+             Q 226 472, 300 478
+             Q 374 472, 404 438
+             Q 432 392, 432 290 Z"
+          fill="url(#faceShade)" opacity="0.6" />
+
+    <!-- bright orange rim light on the right edge of the head -->
+    <path d="M 300 124 Q 442 124, 442 290 Q 442 392, 410 438"
+          stroke="#f5953a" stroke-width="3.5" fill="none" opacity="0.9" />
+    <path d="M 388 200 Q 422 260, 420 360 Q 418 410, 400 438"
+          stroke="#e8763a" stroke-width="2" fill="none" opacity="0.55" />
+
+    <!-- subtle cheek light -->
+    <ellipse cx="385" cy="320" rx="22" ry="38" fill="#e8763a" opacity="0.18" filter="url(#soft)" />
+    <!-- jaw line hint -->
+    <path d="M 220 412 Q 300 460, 380 412"
+          stroke="#e8763a" stroke-width="1.5" fill="none" opacity="0.28" />
+    <!-- collar / shoulder rim -->
+    <path d="M 360 462 Q 470 480, 540 540"
+          stroke="#e8763a" stroke-width="2" fill="none" opacity="0.32" />
+  </g>
+
+  <!-- HEADPHONES (clearly visible, the storytelling prop) -->
+  <g>
+    <!-- band shadow -->
+    <path d="M 152 248 Q 300 80, 448 248"
+          stroke="#040405" stroke-width="36" fill="none" stroke-linecap="round" filter="url(#soft)" />
+    <!-- band main -->
+    <path d="M 152 240 Q 300 76, 448 240"
+          stroke="#0a0a0a" stroke-width="28" fill="none" stroke-linecap="round" />
+    <!-- band highlight (rim-lit top) -->
+    <path d="M 152 240 Q 300 76, 448 240"
+          stroke="#3a1a08" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.85" />
+    <path d="M 280 84 Q 365 84, 442 235"
+          stroke="#e8763a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5" />
+
+    <!-- left ear cup -->
+    <ellipse cx="152" cy="315" rx="58" ry="88" fill="#050505" />
+    <ellipse cx="152" cy="315" rx="48" ry="74" fill="#121010" />
+    <ellipse cx="152" cy="315" rx="34" ry="56" fill="#080606" />
+    <!-- right ear cup (rim-lit) -->
+    <ellipse cx="448" cy="315" rx="58" ry="88" fill="#050505" />
+    <ellipse cx="448" cy="315" rx="48" ry="74" fill="#1c1208" />
+    <ellipse cx="448" cy="315" rx="34" ry="56" fill="#0a0808" />
+    <!-- rim light on right ear cup -->
+    <path d="M 484 270 Q 506 315, 484 360" stroke="#e8763a" stroke-width="3" fill="none" opacity="0.75" />
+
+    <!-- LED indicators (orange, glowing) -->
+    <circle cx="448" cy="310" r="14" fill="#f0853a" opacity="0.4"  filter="url(#soft)" />
+    <circle cx="448" cy="310" r="6"  fill="#f5953a" opacity="0.95" />
+    <circle cx="152" cy="310" r="11" fill="#e8763a" opacity="0.3"  filter="url(#soft)" />
+    <circle cx="152" cy="310" r="5"  fill="#e8763a" opacity="0.9"  />
+  </g>
+
+  <!-- vignette darken at edges -->
+  <radialGradient id="vig" cx="50%" cy="50%" r="70%">
+    <stop offset="55%" stop-color="#000" stop-opacity="0" />
+    <stop offset="100%" stop-color="#000" stop-opacity="0.55" />
+  </radialGradient>
+  <rect width="600" height="800" fill="url(#vig)" />
+
+  <!-- grain layer -->
+  <rect width="600" height="800" filter="url(#grain)" opacity="0.22" />
+</svg>
