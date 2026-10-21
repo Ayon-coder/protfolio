@@ -108,7 +108,7 @@ export default function Hero() {
           transition={{ delay: 1.4, duration: 0.8 }}
         >
           <p>
-            A solo edit suite out of <strong>Kolkata</strong>, run by <strong>Ayon Sadhukhan</strong>.
+            A solo edit suite out of <strong>Kolkata</strong>, run by <strong>ANX</strong>.
             I cut <strong>cinematic brand films</strong>, <strong>music videos</strong>, and the
             occasional <strong>short-form chaos</strong> for the scroll. Story first, frame second, kerning third.
           </p>

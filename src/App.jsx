@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Loader from './components/Loader.jsx';
 import Cursor from './components/Cursor.jsx';
 import Nav from './components/Nav.jsx';
-import Hero from './components/Hero.jsx';
-import Marquee from './components/Marquee.jsx';
-import Services from './components/Services.jsx';
-import Reels from './components/Reels.jsx';
-import About from './components/About.jsx';
-import Tools from './components/Tools.jsx';
-import Contact from './components/Contact.jsx';
-import Footer from './components/Footer.jsx';
+import VideoPage from './components/VideoPage.jsx';
+import DesignPage from './components/DesignPage.jsx';
 import useMagnetic from './hooks/useMagnetic.js';
 import useLenis from './hooks/useLenis.js';
 
-export default function App() {
+function HashHandler() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle hash fallback routing (e.g. #/design or #design)
+    const hash = window.location.hash;
+    if (hash === '#/design' || hash === '#design') {
+      navigate('/design', { replace: true });
+    }
+  }, [navigate]);
+
+  return null;
+}
+
+function MainLayout() {
   const [ready, setReady] = useState(false);
 
   useLenis();
@@ -29,16 +38,23 @@ export default function App() {
       <div className="vignette" aria-hidden />
       <Cursor />
       <Loader onDone={() => setReady(true)} />
+      <HashHandler />
 
       <Nav />
-      <Hero />
-      <Marquee />
-      <Services />
-      <Reels />
-      <About />
-      <Tools />
-      <Contact />
-      <Footer />
+      <Routes>
+        <Route path="/" element={<VideoPage />} />
+        <Route path="/design" element={<DesignPage />} />
+        {/* Fallback route */}
+        <Route path="*" element={<VideoPage />} />
+      </Routes>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <MainLayout />
+    </BrowserRouter>
   );
 }

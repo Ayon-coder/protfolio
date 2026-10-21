@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Nav() {
   const [time, setTime] = useState('--:--:--');
+  const location = useLocation();
+  const isDesign = location.pathname.startsWith('/design');
 
   useEffect(() => {
     const tick = () => {
@@ -19,16 +22,48 @@ export default function Nav() {
 
   return (
     <header className="nav">
-      <a className="nav__logo" href="#top" data-magnet>
+      <Link className="nav__logo" to={isDesign ? "/design" : "/"} data-magnet>
         <span className="nav__logo-glyph">A</span>
-        <span className="nav__logo-name">ANX<em>· studio</em></span>
-      </a>
+        <span className="nav__logo-name">
+          ANX<em>· {isDesign ? 'design' : 'studio'}</em>
+        </span>
+      </Link>
+
+      {/* Route Switcher Pills */}
+      <div className="nav__routes" role="navigation" aria-label="Portfolio Switcher">
+        <Link
+          to="/"
+          className={`nav__route-tab ${!isDesign ? 'is-active' : ''}`}
+          data-cursor="videos"
+        >
+          <span>Video</span>
+        </Link>
+        <Link
+          to="/design"
+          className={`nav__route-tab ${isDesign ? 'is-active' : ''}`}
+          data-cursor="design"
+        >
+          <span>Design</span>
+        </Link>
+      </div>
+
       <nav className="nav__links">
-        <a href="#work" data-cursor="watch">work</a>
-        <a href="#about" data-cursor="story">about</a>
-        <a href="#tools" data-cursor="kit">tools</a>
+        {isDesign ? (
+          <>
+            <a href="#thumbnails" data-cursor="inspect">thumbnails</a>
+            <a href="#posters" data-cursor="art">posters</a>
+            <a href="#tools" data-cursor="suite">tools</a>
+          </>
+        ) : (
+          <>
+            <a href="#work" data-cursor="watch">work</a>
+            <a href="#about" data-cursor="story">about</a>
+            <a href="#tools" data-cursor="kit">tools</a>
+          </>
+        )}
         <a href="#contact" className="nav__cta" data-cursor="say hi">let's talk →</a>
       </nav>
+
       <div className="nav__meta">
         <span>{time} IST</span>
         <span className="nav__dot" />
