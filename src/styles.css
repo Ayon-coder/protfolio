@@ -479,9 +479,29 @@ button { background: none; border: 0; color: inherit; font: inherit; cursor: non
 .svc__list li { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 11px 0; border-top: 1px solid var(--line); color: var(--text-soft); }
 
 /* ============== CINEMA SPOTLIGHT (DOCUMENTARIES) ============== */
-.cinema-spotlight {
-  padding: 0 var(--gut);
-  margin-bottom: 24px;
+.cinema-slider-viewport {
+  position: relative;
+  width: 100%;
+}
+
+.cinema-slider__strip {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+  padding-bottom: 8px;
+}
+.cinema-slider__strip::-webkit-scrollbar { display: none; }
+.cinema-slider__strip.is-dragging { cursor: grabbing; }
+.cinema-slider__strip.is-dragging .cinema-card { pointer-events: none; }
+
+.cinema-slider__track {
+  display: flex;
+  gap: 24px;
+  padding: 0 var(--gut) 16px;
+  width: max-content;
 }
 
 .cinema-card {
@@ -494,6 +514,12 @@ button { background: none; border: 0; color: inherit; font: inherit; cursor: non
   cursor: pointer;
   outline: none;
   transition: transform .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease);
+}
+
+.cinema-card--slide {
+  flex: 0 0 auto;
+  width: clamp(300px, 80vw, 980px);
+  scroll-snap-align: center;
 }
 .cinema-card:hover {
   transform: translateY(-5px);
@@ -656,8 +682,65 @@ button { background: none; border: 0; color: inherit; font: inherit; cursor: non
   gap: 8px;
 }
 
+/* Arrow controls for documentary cinema slider */
+.cinema-slider__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(216,212,203,0.18);
+  background: rgba(14,14,16,0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 30px -8px rgba(0,0,0,0.6);
+  transition: all .25s var(--ease);
+}
+.cinema-slider__arrow--prev { left: clamp(10px, 1.8vw, 24px); }
+.cinema-slider__arrow--next { right: clamp(10px, 1.8vw, 24px); }
+.cinema-slider__arrow:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  transform: translateY(-50%) scale(1.08);
+}
+.cinema-slider__arrow:disabled {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.cinema-slider__mobile-hint {
+  display: none;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-top: 10px;
+}
+
 @media (max-width: 768px) {
   .cinema-card { border-radius: 18px; }
+  .cinema-card--slide {
+    width: clamp(260px, 86vw, 360px);
+  }
+  .cinema-slider__arrow {
+    display: none !important;
+  }
+  .cinema-slider__mobile-hint {
+    display: block;
+  }
+  .cinema-slider__track {
+    gap: 16px;
+    padding: 0 7vw 16px;
+  }
   .cinema-card__meta {
     padding: 18px 16px;
     flex-direction: column;

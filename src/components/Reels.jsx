@@ -4,6 +4,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 /* Documentaries — long-form horizontal content */
 const DOCUMENTARIES = [
   {
+    id: 'CvldUbyYfFs',
+    title: 'Durga Puja · Journey of Emotions',
+    type: 'documentary film',
+    year: '26',
+    client: 'Culture & Heritage',
+    description: 'From Mahalaya to Dashami — an emotional journey capturing the spirit, rituals, and celebration of Durga Puja.'
+  },
+  {
     id: 'bSUHwuSJtgU',
     title: 'Video Editing Practice · Story',
     type: 'narrative demo',
@@ -135,72 +143,233 @@ function VideoModal({ video, onClose }) {
   );
 }
 
-/* Featured Documentary Spotlight Showcase */
-function DocumentaryCinema({ video, onSelectVideo }) {
+/* Featured Documentary Spotlight Carousel / Slider */
+function DocumentarySlider({ videos, onSelectVideo }) {
+  const stripRef = useRef(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(videos.length > 1);
+  const isPointerDrag = useRef(false);
+  const touchStartPos = useRef({ x: 0, y: 0 });
+
+  /* Update arrow states on scroll */
+  const updateEdges = useCallback(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const atStart = strip.scrollLeft <= 6;
+    const atEnd = Math.ceil(strip.scrollLeft + strip.clientWidth) >= strip.scrollWidth - 6;
+    setCanPrev(!atStart);
+    setCanNext(!atEnd);
+  }, []);
+
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    updateEdges();
+    strip.addEventListener('scroll', updateEdges, { passive: true });
+    window.addEventListener('resize', updateEdges);
+    return () => {
+      strip.removeEventListener('scroll', updateEdges);
+      window.removeEventListener('resize', updateEdges);
+    };
+  }, [updateEdges]);
+
+  /* Scroll card by card */
+  const scrollByCard = useCallback(dir => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const card = strip.querySelector('.cinema-card');
+    if (!card) return;
+    const gap = 24;
+    const step = card.offsetWidth + gap;
+    strip.scrollBy({ left: dir * step, behavior: 'smooth' });
+  }, []);
+
+  /* Mouse drag only for desktop pointer devices */
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    const onMouseDown = e => {
+      if (e.target.closest('.cinema-slider__arrow') || e.target.closest('button')) return;
+      isDown = true;
+      isPointerDrag.current = false;
+      startX = e.pageX - strip.offsetLeft;
+      scrollLeft = strip.scrollLeft;
+    };
+
+    const onMouseLeave = () => {
+      isDown = false;
+      strip.classList.remove('is-dragging');
+      setTimeout(() => { isPointerDrag.current = false; }, 60);
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      strip.classList.remove('is-dragging');
+      setTimeout(() => { isPointerDrag.current = false; }, 60);
+    };
+
+    const onMouseMove = e => {
+      if (!isDown) return;
+      const walk = e.pageX - strip.offsetLeft - startX;
+      if (Math.abs(walk) > 6) {
+        isPointerDrag.current = true;
+        strip.classList.add('is-dragging');
+      }
+      e.preventDefault();
+      strip.scrollLeft = scrollLeft - walk * 1.35;
+    };
+
+    strip.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    strip.addEventListener('mouseleave', onMouseLeave);
+    strip.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      strip.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      strip.removeEventListener('mouseleave', onMouseLeave);
+      strip.removeEventListener('mousemove', onMouseMove);
+    };
+  }, []);
+
+  const handleCardClick = (video, e) => {
+    if (isPointerDrag.current) {
+      e.preventDefault();
+      return;
+    }
+    onSelectVideo({ ...video, format: 'horizontal' });
+  };
+
   return (
-    <div className="cinema-spotlight">
+    <div className="cinema-slider-viewport">
       <div
-        className="cinema-card"
-        role="button"
-        tabIndex={0}
-        onClick={() => onSelectVideo({ ...video, format: 'horizontal' })}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onSelectVideo({ ...video, format: 'horizontal' });
+        className="cinema-slider__strip"
+        ref={stripRef}
+        onTouchStart={e => {
+          touchStartPos.current = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+          };
+          isPointerDrag.current = false;
+        }}
+        onTouchMove={e => {
+          const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+          const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+          if (dx > 10 || dy > 10) {
+            isPointerDrag.current = true;
           }
         }}
-        data-cursor="play"
+        onTouchEnd={() => {
+          setTimeout(() => { isPointerDrag.current = false; }, 80);
+        }}
       >
-        <div className="cinema-card__media">
-          <img
-            src={ytMaxThumb(video.id)}
-            onError={e => {
-              if (!e.currentTarget.dataset.fallback) {
-                e.currentTarget.src = ytThumb(video.id);
-                e.currentTarget.dataset.fallback = '1';
-              }
-            }}
-            alt={video.title}
-            loading="lazy"
-            draggable={false}
-          />
-          <div className="cinema-card__overlay" />
-          <div className="cinema-card__badge-row">
-            <span className="cinema-card__chip">Featured Work</span>
-            <span className="cinema-card__year">'{video.year}</span>
-          </div>
-          <div className="cinema-card__play">
-            <div className="cinema-card__play-pulse" />
-            <div className="cinema-card__play-btn">
-              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-            <span className="cinema-card__play-text">Watch Story</span>
-          </div>
-        </div>
+        <div className="cinema-slider__track">
+          {videos.map(video => (
+            <div
+              key={video.id}
+              className="cinema-card cinema-card--slide"
+              role="button"
+              tabIndex={0}
+              onClick={e => handleCardClick(video, e)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectVideo({ ...video, format: 'horizontal' });
+                }
+              }}
+              data-cursor="play"
+            >
+              <div className="cinema-card__media">
+                <img
+                  src={ytMaxThumb(video.id)}
+                  onError={e => {
+                    if (!e.currentTarget.dataset.fallback) {
+                      e.currentTarget.src = ytThumb(video.id);
+                      e.currentTarget.dataset.fallback = '1';
+                    }
+                  }}
+                  alt={video.title}
+                  loading="lazy"
+                  draggable={false}
+                />
+                <div className="cinema-card__overlay" />
+                <div className="cinema-card__badge-row">
+                  <span className="cinema-card__chip">Featured Work</span>
+                  <span className="cinema-card__year">'{video.year}</span>
+                </div>
+                <div className="cinema-card__play">
+                  <div className="cinema-card__play-pulse" />
+                  <div className="cinema-card__play-btn">
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                  <span className="cinema-card__play-text">Watch Story</span>
+                </div>
+              </div>
 
-        <div className="cinema-card__meta">
-          <div className="cinema-card__details">
-            <span className="cinema-card__client">{video.client} · {video.type}</span>
-            <h3 className="cinema-card__title">{video.title}</h3>
-            <p className="cinema-card__desc">{video.description}</p>
-          </div>
-          <button
-            type="button"
-            className="btn btn--primary cinema-card__cta"
-            onClick={e => {
-              e.stopPropagation();
-              onSelectVideo({ ...video, format: 'horizontal' });
-            }}
-          >
-            <span>Play Video</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </button>
+              <div className="cinema-card__meta">
+                <div className="cinema-card__details">
+                  <span className="cinema-card__client">{video.client} · {video.type}</span>
+                  <h3 className="cinema-card__title">{video.title}</h3>
+                  <p className="cinema-card__desc">{video.description}</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn--primary cinema-card__cta"
+                  onClick={e => {
+                    e.stopPropagation();
+                    if (isPointerDrag.current) return;
+                    onSelectVideo({ ...video, format: 'horizontal' });
+                  }}
+                >
+                  <span>Play Video</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* Navigation Arrows for Documentary Slider */}
+      <button
+        type="button"
+        className="cinema-slider__arrow cinema-slider__arrow--prev"
+        onClick={() => scrollByCard(-1)}
+        disabled={!canPrev}
+        aria-label="Previous documentary"
+        data-cursor="prev"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M15 18L9 12L15 6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        className="cinema-slider__arrow cinema-slider__arrow--next"
+        onClick={() => scrollByCard(1)}
+        disabled={!canNext}
+        aria-label="Next documentary"
+        data-cursor="next"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M9 6L15 12L9 18" />
+        </svg>
+      </button>
+
+      {/* Mobile touch hint indicator */}
+      <div className="cinema-slider__mobile-hint" aria-hidden>
+        <span>tap card to play · swipe horizontally</span>
       </div>
     </div>
   );
@@ -461,9 +630,9 @@ export default function Reels() {
       <div className="section-head">
         <span className="section-num">/02</span>
         <h2 className="section-title">documentaries</h2>
-        <p className="section-kicker">Long-form storytelling. Click or tap to watch inside the site.</p>
+        <p className="section-kicker">Long-form storytelling. Swipe or drag to browse, click to watch inside the site.</p>
       </div>
-      <DocumentaryCinema video={DOCUMENTARIES[0]} onSelectVideo={setActiveVideo} />
+      <DocumentarySlider videos={DOCUMENTARIES} onSelectVideo={setActiveVideo} />
 
       {/* REELS SECTION */}
       <div className="section-head" style={{ marginTop: '80px' }}>
